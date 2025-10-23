@@ -33,7 +33,7 @@ export const Counter = () => {
         >
           -
         </button>
-        <span aria-label="Count" className={styles.value}>
+        <span aria-label="Count" className="text-5xl">
           {count}
         </span>
         <button

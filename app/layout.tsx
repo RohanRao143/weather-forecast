@@ -17,7 +17,7 @@ export default function RootLayout({ children }: Props) {
         <body>
           <section className={styles.container}>
             <Nav />
-
+{/* 
             <header className={styles.header}>
               <Image
                 src="/logo.svg"
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: Props) {
                 width={100}
                 height={100}
               />
-            </header>
+            </header> */}
 
             <main className={styles.main}>{children}</main>
 
