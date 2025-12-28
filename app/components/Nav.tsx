@@ -9,7 +9,8 @@ import { Autocomplete, Box, TextField } from "@mui/material";
 
 import { useFetchGeoLocationsQuery } from "@/lib/features/geo-coding/geocodingApiSlice";
 import { setGeoLocation } from "@/lib/features/geo-coding/geoCodingSlice";
-import { useAppDispatch } from "@/lib/hooks";
+import { useAppDispatch, useDebounce } from "@/lib/hooks";
+import React, { useEffect } from "react";
 
 const params = {
 	"name": 'london',
@@ -18,8 +19,25 @@ const params = {
 export const Nav = () => {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const { data, isError, isLoading, isSuccess } = useFetchGeoLocationsQuery(params);
 
+  const [searchTerm, setSearchTerm] = React.useState('london');
+  
+  // Issue with debouce usage, will be worked as enhancements
+  // const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  // useEffect(() => {
+  //   console.log(data);
+  //   console.log('Debounced search term:', debouncedSearchTerm, searchTerm);
+  // }, [searchTerm]);
+  
+  const { data, isError, isLoading, isSuccess } = useFetchGeoLocationsQuery({ name: searchTerm });
+
+
+  useEffect(() => {
+    if (navigator?.geolocation) {
+      navigator.geolocation.getCurrentPosition(handleCoordinates);
+    }
+  }, []);
 
   const menu: any = [
     // { name: "Home", href: "/" },
@@ -39,6 +57,19 @@ export const Nav = () => {
   const selectLocation = (event: any, value: any) => {
     console.log('Selected location:', value);
     dispatch(setGeoLocation({ latitude: value.latitude, longitude: value.longitude, city: value.name, country: value.country }));
+  }
+
+
+  const handleCoordinates = (data: any) => {
+    if (data.coords.latitude && data.coords.longitude) {
+      dispatch(setGeoLocation({ latitude: data.coords.latitude, longitude: data.coords.longitude }));
+    }
+  }
+
+  const handleSearch = (event: any, value: any) => {
+    if (value.length > 2) {
+      setSearchTerm(value);
+    }
   }
 
   return (
@@ -71,6 +102,7 @@ export const Nav = () => {
                   options={data ? data.results : []}
                   getOptionLabel={(option: any) => option.name + ', ' + option.country}
                   onChange={selectLocation}
+                  onInputChange={handleSearch}
                   sx={{
                     width: 300,
                     '& .MuiInputBase-input': {

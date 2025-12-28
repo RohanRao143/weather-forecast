@@ -4,11 +4,11 @@ import * as React from 'react';
 import Image from "next/image";
 import { Weather as WeatherChart } from "../components/weather/Weather";
 import styles from "../styles/layout.module.css";
-import { selectLocation, selectWeatherData, setWeatherData } from "@/lib/features/geo-coding/geoCodingSlice";
+import { selectLocation, selectWeatherData, setGeoLocation, setWeatherData } from "@/lib/features/geo-coding/geoCodingSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { useGetQuotesQuery } from "@/lib/features/quotes/quotesApiSlice";
+import { useReverseGeoLocationQuery } from "@/lib/features/reverse-geo-coding/reverseCodingApiSlice";
 
-import { useFetchForecastWeatherQuery, weatherApiSlice } from "@/lib/features/weather/weatherApiSlice";
+import { useFetchForecastWeatherQuery } from "@/lib/features/weather/weatherApiSlice";
 
 export default function WeatherPage() {
   
@@ -25,16 +25,27 @@ export default function WeatherPage() {
   params.latitude = location?.latitude;
   params.longitude = location?.longitude;
 
-  console.log('Fetching weather with params:', params);
+  // console.log('Fetching weather with params:', params);
 
   const { data, isError, isLoading, isSuccess } = useFetchForecastWeatherQuery(params);
-
-  if (data) {
-    dispatch(setWeatherData(data));
-  }
+  const { data: place, isError: placeError, isLoading: placeLoading, isSuccess: placeSuccess } = useReverseGeoLocationQuery(params);
 
   
-  // React.useEffect(() => {
+  React.useEffect(() => {
+    if (data) {
+      dispatch(setWeatherData(data));
+    }
+    
+    if (place) {
+      const reverseLocation = {
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        city: `${place.address.city} ${place.address.state}`,
+        country: place.address.country
+      }
+      dispatch(setGeoLocation(reverseLocation));
+    }
+  }, [data, place]);
 
     // React.useEffect(() => {
     //   // handleClearCache

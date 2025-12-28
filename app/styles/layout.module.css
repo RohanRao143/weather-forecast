@@ -20,6 +20,13 @@
   pointer-events: none;
   color:#fff
 }
+/* 
+.humidity {
+  height: 40vmin;
+  pointer-events: none;
+  color:#fff
+} */
+
 
 .header {
   grid-area: header;
